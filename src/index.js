@@ -1,6 +1,7 @@
 import React from "react"
 import ReactDOM from "react-dom/client"
-import Battleship from "./Battleship"
+import Battleship from "./components/Battleship"
+import "./styles.css"
 
 const root = ReactDOM.createRoot(document.getElementById("root"))
 root.render(
