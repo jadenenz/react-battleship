@@ -1,18 +1,17 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 
-function Grid({ board, attacksReceived }) {
+function Grid({ board, attacksReceived, isArrayinArray, takeHit }) {
   const [gridDivs, setGridDivs] = useState(null)
 
-  //helper function that returns true if an array
-  //is contained in another array
-  function isArrayinArray(arr, item) {
-    const stringifiedItem = JSON.stringify(item)
-
-    const contains = arr.some(function (ele) {
-      return JSON.stringify(ele) === stringifiedItem
-    })
-    return contains
-  }
+  //isArrayinArray is NOT returning true at all for the handle click version of the function but calling the function with a button works fine.
+  const handleClick = useCallback(
+    (e) => {
+      const x = parseInt(e.target.dataset.x)
+      const y = parseInt(e.target.dataset.y)
+      takeHit(x, y)
+    },
+    [takeHit]
+  )
 
   useEffect(() => {
     function updateGrid() {
@@ -24,6 +23,10 @@ function Grid({ board, attacksReceived }) {
           let classes = "boardSpace"
           const target = [x, y]
           //if target is found in attacksReceived array
+          console.log(
+            "the target was found in attacksArray",
+            isArrayinArray(attacksReceived, target)
+          )
           if (isArrayinArray(attacksReceived, target)) {
             classes += " attacked"
           }
@@ -31,15 +34,26 @@ function Grid({ board, attacksReceived }) {
             classes += " empty"
           } else {
             classes += " ship"
+            if (boardSpace.isSunk) {
+              classes += " sunk"
+            }
           }
-          const newDiv = <div className={classes}></div>
+          const newDiv = (
+            <div
+              onClick={handleClick}
+              data-x={x}
+              data-y={y}
+              className={classes}
+              key={target}
+            ></div>
+          )
           return newDiv
         })
       })
       setGridDivs(gridDivs)
     }
     updateGrid()
-  }, [board])
+  }, [board, attacksReceived, handleClick, isArrayinArray])
 
   return <div className="Grid">{gridDivs}</div>
 }

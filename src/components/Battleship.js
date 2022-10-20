@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react"
+import Selection from "./Selection"
 import Grid from "./Grid"
 
 function Battleship() {
@@ -21,6 +22,7 @@ function Battleship() {
   const [playerBoard, setPlayerBoard] = useState(initializeBoard)
   const [computerBoard, setComputerBoard] = useState(initializeBoard)
   const [attacksReceived, setAttacksReceived] = useState([])
+  const [activeShip, setActiveShip] = useState(null)
 
   //Initialize the boards for the player and the computer
   //boardNum === 1 for playerBoard, 2 for ComputerBoard
@@ -98,14 +100,45 @@ function Battleship() {
     }
   }
 
+  //helper function that returns true if an array
+  //is contained in another array
+  function isArrayinArray(arr, item) {
+    const stringifiedItem = JSON.stringify(item)
+
+    const contains = arr.some(function (ele) {
+      return JSON.stringify(ele) === stringifiedItem
+    })
+    return contains
+  }
+
+  //takes one of the boards (either player or computer)
+  //as its argument to check if all ships placed are sunk
+  //returns true or false
+  const CheckIfAllSunk = (board) => {
+    let allSunk = true
+    const boardCopy = [...board]
+    boardCopy.forEach((row) => {
+      row.forEach((cell) => {
+        if (cell !== null) {
+          if (cell.isSunk === false) {
+            allSunk = false
+          }
+        }
+      })
+    })
+    return allSunk
+  }
+
   const takeHit = (x, y) => {
     //if the spot has not been attacked before,
     //add it to attacksReceived array
-    if (!attacksReceived.includes([x, y])) {
-      setAttacksReceived((prevAttacksReceived) => {
-        return [...prevAttacksReceived, [x, y]]
-      })
+    const target = [x, y]
+    if (isArrayinArray(attacksReceived, target)) {
+      throw new Error("this location has already been hit")
     }
+    setAttacksReceived((prevAttacksReceived) => {
+      return [...prevAttacksReceived, [x, y]]
+    })
     const boardCopy = [...playerBoard]
     const targetSpot = boardCopy[x][y]
     console.log("targetSpot: ", targetSpot)
@@ -113,6 +146,9 @@ function Battleship() {
       targetSpot.hitsTaken += 1
       if (targetSpot.hitsTaken === targetSpot.length) {
         targetSpot.isSunk = true
+        if (CheckIfAllSunk(boardCopy)) {
+          console.log("you loseded")
+        }
       }
     }
     setPlayerBoard(boardCopy)
@@ -132,10 +168,16 @@ function Battleship() {
 
   const handleTestFire = () => {
     takeHit(1, 0)
+    // takeHit(0, 0)
+    // takeHit(2, 0)
   }
 
   const handleMisfire = () => {
     takeHit(6, 7)
+  }
+
+  const handleBoardCheck = () => {
+    console.log(CheckIfAllSunk(playerBoard))
   }
 
   useEffect(() => {
@@ -151,24 +193,32 @@ function Battleship() {
   return (
     <div className="battleship">
       <p>battleship</p>
+      <Selection setActiveShip={setActiveShip} />
       <button onClick={handleClick}>test placement</button>
       <button onClick={handleClick2}>other ship</button>
       <button onClick={handleTestFire}>test fire1</button>
       <button onClick={handleMisfire}>test misfire</button>
+      <button onClick={handleBoardCheck}>test check</button>
+      {/* <button onClick={handleTestFire2}></button> */}
 
-      <Grid board={playerBoard} attacksReceived={attacksReceived} />
+      <Grid
+        board={playerBoard}
+        attacksReceived={attacksReceived}
+        isArrayinArray={isArrayinArray}
+        takeHit={takeHit}
+        activeShip={activeShip}
+      />
     </div>
   )
 }
 
-//initial thoughts on how to approach:
-
-//most of the game logic is held at the top level.
-
-//one state for each gameboard (two dimensional array)
-
-//helper function that creates and places ship objects (objects that store
-//ship length, # of hits taken, and isSunk boolean)
+//    (DONE)track if all ships on the board have been sunk
+//    (DONE)make the div on board interactible by clicking (data attributes?)
+// set up the ui for clicking ships and then clicking the board to add them
+// make 2 different boards for the player and pc with different display rules
+// add a function that makes the computer do a random attack that is hasn't done yet
+// set up logic for alternating turns
+// set up logic for winning the game
 
 //player turn could potentially be a boolean that flips every time a move is made
 
