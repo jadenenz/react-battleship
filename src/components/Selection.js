@@ -26,7 +26,7 @@ function Selection({ setActiveShip }) {
     <div className="Selection">
       <div className="selection--title">Ships</div>
       <div className="selection--button-container">
-        <button onClick={() => handleClick(carrier)}>Carrier</button>
+        <button onClick={() => handleClick("carrier")}>Carrier</button>
         {/* <button onClick={handleClick(battleship)}>Battleship</button>
         <button onClick={handleClick(cruiser)}>Cruiser</button>
         <button onClick={handleClick(submarine)}>Submarine</button>
