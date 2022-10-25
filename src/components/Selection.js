@@ -1,6 +1,6 @@
 import React from "react"
 
-function Selection({ setActiveShip }) {
+function Selection({ setActiveShip, shipsPlaced }) {
   //given length returns ship object that stores length
   // and # of hits taken
   const shipFactory = (length) => {
@@ -16,21 +16,33 @@ function Selection({ setActiveShip }) {
   const cruiser = shipFactory(3)
   const submarine = shipFactory(3)
   const destroyer = shipFactory(2)
+  cruiser.isCruiser = true
 
   //this currently stores the object but i think it needs to be the name of the ship as a string
   const handleClick = (ship) => {
     setActiveShip(ship)
+    // console.log("shipsPlaced :", shipsPlaced)
   }
 
   return (
     <div className="Selection">
       <div className="selection--title">Ships</div>
       <div className="selection--button-container">
-        <button onClick={() => handleClick("carrier")}>Carrier</button>
-        {/* <button onClick={handleClick(battleship)}>Battleship</button>
-        <button onClick={handleClick(cruiser)}>Cruiser</button>
-        <button onClick={handleClick(submarine)}>Submarine</button>
-        <button onClick={handleClick(destroyer)}>Destroyer</button> */}
+        {!shipsPlaced.carrier && (
+          <button onClick={() => handleClick(carrier)}>Carrier</button>
+        )}
+        {!shipsPlaced.battleship && (
+          <button onClick={() => handleClick(battleship)}>Battleship</button>
+        )}
+        {!shipsPlaced.cruiser && (
+          <button onClick={() => handleClick(cruiser)}>Cruiser</button>
+        )}
+        {!shipsPlaced.submarine && (
+          <button onClick={() => handleClick(submarine)}>Submarine</button>
+        )}
+        {!shipsPlaced.destroyer && (
+          <button onClick={() => handleClick(destroyer)}>Destroyer</button>
+        )}
       </div>
     </div>
   )

@@ -1,21 +1,77 @@
 import React, { useState, useEffect, useCallback } from "react"
 
-function Grid({ board, attacksReceived, isArrayinArray, takeHit }) {
+function Grid({
+  board,
+  attacksReceived,
+  isArrayinArray,
+  takeHit,
+  activeShip,
+  placeShip,
+  setActiveShip,
+  setShipsPlaced,
+}) {
   const [gridDivs, setGridDivs] = useState(null)
 
-  //isArrayinArray is NOT returning true at all for the handle click version of the function but calling the function with a button works fine.
   const handleClick = useCallback(
     (e) => {
+      //helper function to set which ship has been placed
+      const setCorrectShipPlaced = (activeShip) => {
+        if (activeShip.length === 5) {
+          setShipsPlaced((prevShipsPlaced) => {
+            return {
+              ...prevShipsPlaced,
+              carrier: true,
+            }
+          })
+        } else if (activeShip.length === 4) {
+          setShipsPlaced((prevShipsPlaced) => {
+            return {
+              ...prevShipsPlaced,
+              battleship: true,
+            }
+          })
+        } else if (activeShip.length === 2) {
+          setShipsPlaced((prevShipsPlaced) => {
+            return {
+              ...prevShipsPlaced,
+              destroyer: true,
+            }
+          })
+        } else if (activeShip.length === 3) {
+          if (activeShip.isCruiser) {
+            setShipsPlaced((prevShipsPlaced) => {
+              return {
+                ...prevShipsPlaced,
+                cruiser: true,
+              }
+            })
+          } else {
+            setShipsPlaced((prevShipsPlaced) => {
+              return {
+                ...prevShipsPlaced,
+                submarine: true,
+              }
+            })
+          }
+        }
+      }
+      //if there is currently an active ship
       const x = parseInt(e.target.dataset.x)
       const y = parseInt(e.target.dataset.y)
-      takeHit(x, y)
+      if (activeShip !== null) {
+        placeShip(activeShip, "h", x, y)
+        setActiveShip(null)
+        setCorrectShipPlaced(activeShip)
+      } else {
+        takeHit(x, y)
+      }
     },
-    [takeHit]
+    [takeHit, placeShip, activeShip, setActiveShip, setShipsPlaced]
   )
 
   useEffect(() => {
     function updateGrid() {
-      console.log("updating board")
+      // console.log("updating board")
       const gridDivs = board.map((row, index) => {
         const x = index
         return row.map((boardSpace, index) => {
@@ -23,10 +79,10 @@ function Grid({ board, attacksReceived, isArrayinArray, takeHit }) {
           let classes = "boardSpace"
           const target = [x, y]
           //if target is found in attacksReceived array
-          console.log(
-            "the target was found in attacksArray",
-            isArrayinArray(attacksReceived, target)
-          )
+          // console.log(
+          //   "the target was found in attacksArray",
+          //   isArrayinArray(attacksReceived, target)
+          // )
           if (isArrayinArray(attacksReceived, target)) {
             classes += " attacked"
           }

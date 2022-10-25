@@ -6,7 +6,7 @@ function Battleship() {
   //Initialize the boards for the player and the computer
   //boardNum === 1 for playerBoard, 2 for ComputerBoard
   const initializeBoard = () => {
-    console.log("initialize board called")
+    // console.log("initialize board called")
     let board = []
     const size = 10
 
@@ -23,6 +23,15 @@ function Battleship() {
   const [computerBoard, setComputerBoard] = useState(initializeBoard)
   const [attacksReceived, setAttacksReceived] = useState([])
   const [activeShip, setActiveShip] = useState(null)
+
+  //states for which ships have been placed on the board
+  const [shipsPlaced, setShipsPlaced] = useState({
+    carrier: false,
+    battleship: false,
+    cruiser: false,
+    submarine: false,
+    destroyer: false,
+  })
 
   //Initialize the boards for the player and the computer
   //boardNum === 1 for playerBoard, 2 for ComputerBoard
@@ -141,7 +150,7 @@ function Battleship() {
     })
     const boardCopy = [...playerBoard]
     const targetSpot = boardCopy[x][y]
-    console.log("targetSpot: ", targetSpot)
+    // console.log("targetSpot: ", targetSpot)
     if (targetSpot !== null) {
       targetSpot.hitsTaken += 1
       if (targetSpot.hitsTaken === targetSpot.length) {
@@ -156,13 +165,13 @@ function Battleship() {
 
   const handleClick = () => {
     const submarine = shipFactory(3)
-    console.log(submarine)
+    // console.log(submarine)
     placeShip(submarine, "h", 0, 0)
   }
 
   const handleClick2 = () => {
     const destroyer = shipFactory(5)
-    console.log(destroyer)
+    // console.log(destroyer)
     placeShip(destroyer, "v", 4, 1)
   }
 
@@ -186,14 +195,14 @@ function Battleship() {
   }, [])
 
   useEffect(() => {
-    console.log("effect ran -- playerBoard updated.")
+    // console.log("effect ran -- playerBoard updated.")
   }, [playerBoard])
 
-  console.log("playerBoard: ", playerBoard)
+  // console.log("playerBoard: ", playerBoard)
   return (
     <div className="battleship">
       <p>battleship</p>
-      <Selection setActiveShip={setActiveShip} />
+      <Selection setActiveShip={setActiveShip} shipsPlaced={shipsPlaced} />
       <button onClick={handleClick}>test placement</button>
       <button onClick={handleClick2}>other ship</button>
       <button onClick={handleTestFire}>test fire1</button>
@@ -207,6 +216,9 @@ function Battleship() {
         isArrayinArray={isArrayinArray}
         takeHit={takeHit}
         activeShip={activeShip}
+        placeShip={placeShip}
+        setActiveShip={setActiveShip}
+        setShipsPlaced={setShipsPlaced}
       />
     </div>
   )
