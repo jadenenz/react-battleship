@@ -9,6 +9,7 @@ function Grid({
   placeShip,
   setActiveShip,
   setShipsPlaced,
+  boardId,
 }) {
   const [gridDivs, setGridDivs] = useState(null)
 
@@ -58,15 +59,20 @@ function Grid({
       //if there is currently an active ship
       const x = parseInt(e.target.dataset.x)
       const y = parseInt(e.target.dataset.y)
-      if (activeShip !== null) {
-        placeShip(activeShip, "h", x, y)
-        setActiveShip(null)
-        setCorrectShipPlaced(activeShip)
+      console.log(boardId)
+      if (boardId === 1) {
+        if (activeShip !== null) {
+          placeShip(activeShip, "h", x, y)
+          setActiveShip(null)
+          setCorrectShipPlaced(activeShip)
+        } else {
+          takeHit(x, y, boardId)
+        }
       } else {
-        takeHit(x, y)
+        takeHit(x, y, boardId)
       }
     },
-    [takeHit, placeShip, activeShip, setActiveShip, setShipsPlaced]
+    [takeHit, placeShip, activeShip, setActiveShip, setShipsPlaced, boardId]
   )
 
   useEffect(() => {

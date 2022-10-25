@@ -21,7 +21,10 @@ function Battleship() {
   }
   const [playerBoard, setPlayerBoard] = useState(initializeBoard)
   const [computerBoard, setComputerBoard] = useState(initializeBoard)
-  const [attacksReceived, setAttacksReceived] = useState([])
+  const [attacksReceived, setAttacksReceived] = useState({
+    player: [],
+    computer: [],
+  })
   const [activeShip, setActiveShip] = useState(null)
 
   //states for which ships have been placed on the board
@@ -93,6 +96,27 @@ function Battleship() {
     return true
   }
 
+  //helper function to get a random xy
+  const getRandomXY = () => {
+    const max = 10
+    let results = {}
+    results.x = Math.floor(Math.random() * max)
+    results.y = Math.floor(Math.random() * max)
+
+    return results
+  }
+
+  const takeRandomHit = () => {
+    let random = getRandomXY()
+    let target = [random.x, random.y]
+    while (isArrayinArray(attacksReceived.player, target)) {
+      random = getRandomXY()
+      target = [random.x, random.y]
+    }
+
+    takeHit(random.x, random.y, 1)
+  }
+
   const placeShip = (ship, alignment, x, y) => {
     if (checkPlacement(ship, alignment, x, y)) {
       const boardCopy = [...playerBoard]
@@ -107,6 +131,30 @@ function Battleship() {
     } else {
       throw new Error("invalid placement")
     }
+  }
+
+  const placeComputerShip = (ship, alignment, x, y) => {
+    if (checkPlacement(ship, alignment, x, y)) {
+      const boardCopy = [...computerBoard]
+      for (let i = 0; i < ship.length; i++) {
+        if (alignment === "v") {
+          boardCopy[x][y + i] = ship
+        } else if (alignment === "h") {
+          boardCopy[x + i][y] = ship
+        }
+      }
+      setComputerBoard(boardCopy)
+    } else {
+      throw new Error("invalid placement")
+    }
+  }
+
+  const placeComputerShipRandomly = (ship) => {
+    let random = getRandomXY()
+    while (!checkPlacement(ship, "h", random.x, random.y)) {
+      random = getRandomXY()
+    }
+    placeComputerShip(ship, "h", random.x, random.y)
   }
 
   //helper function that returns true if an array
@@ -138,16 +186,31 @@ function Battleship() {
     return allSunk
   }
 
-  const takeHit = (x, y) => {
+  const takeHit = (x, y, board) => {
     //if the spot has not been attacked before,
     //add it to attacksReceived array
     const target = [x, y]
-    if (isArrayinArray(attacksReceived, target)) {
-      throw new Error("this location has already been hit")
+    if (board === 1) {
+      if (isArrayinArray(attacksReceived.player, target)) {
+        throw new Error("this location has already been hit")
+      }
+      setAttacksReceived((prevAttacksReceived) => {
+        return {
+          ...prevAttacksReceived,
+          player: [...prevAttacksReceived.player, [x, y]],
+        }
+      })
+    } else if (board === 2) {
+      if (isArrayinArray(attacksReceived.computer, target)) {
+        throw new Error("this location has already been hit")
+      }
+      setAttacksReceived((prevAttacksReceived) => {
+        return {
+          ...prevAttacksReceived,
+          computer: [...prevAttacksReceived.computer, [x, y]],
+        }
+      })
     }
-    setAttacksReceived((prevAttacksReceived) => {
-      return [...prevAttacksReceived, [x, y]]
-    })
     const boardCopy = [...playerBoard]
     const targetSpot = boardCopy[x][y]
     // console.log("targetSpot: ", targetSpot)
@@ -176,13 +239,12 @@ function Battleship() {
   }
 
   const handleTestFire = () => {
-    takeHit(1, 0)
-    // takeHit(0, 0)
-    // takeHit(2, 0)
+    takeRandomHit()
   }
 
-  const handleMisfire = () => {
-    takeHit(6, 7)
+  const handleRandomShipPlace = () => {
+    const submarine = shipFactory(3)
+    placeComputerShipRandomly(submarine)
   }
 
   const handleBoardCheck = () => {
@@ -206,20 +268,31 @@ function Battleship() {
       <button onClick={handleClick}>test placement</button>
       <button onClick={handleClick2}>other ship</button>
       <button onClick={handleTestFire}>test fire1</button>
-      <button onClick={handleMisfire}>test misfire</button>
+      <button onClick={handleRandomShipPlace}>test random ship</button>
       <button onClick={handleBoardCheck}>test check</button>
       {/* <button onClick={handleTestFire2}></button> */}
 
-      <Grid
-        board={playerBoard}
-        attacksReceived={attacksReceived}
-        isArrayinArray={isArrayinArray}
-        takeHit={takeHit}
-        activeShip={activeShip}
-        placeShip={placeShip}
-        setActiveShip={setActiveShip}
-        setShipsPlaced={setShipsPlaced}
-      />
+      <div className="boards-container">
+        <Grid
+          board={playerBoard}
+          attacksReceived={attacksReceived.player}
+          isArrayinArray={isArrayinArray}
+          takeHit={takeHit}
+          activeShip={activeShip}
+          placeShip={placeShip}
+          setActiveShip={setActiveShip}
+          setShipsPlaced={setShipsPlaced}
+          boardId={1}
+        />
+
+        <Grid
+          board={computerBoard}
+          attacksReceived={attacksReceived.computer}
+          isArrayinArray={isArrayinArray}
+          takeHit={takeHit}
+          boardId={2}
+        />
+      </div>
     </div>
   )
 }
