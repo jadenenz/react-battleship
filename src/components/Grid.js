@@ -10,6 +10,8 @@ function Grid({
   setActiveShip,
   setShipsPlaced,
   boardId,
+  takeRandomHit,
+  shipAlignment,
 }) {
   const [gridDivs, setGridDivs] = useState(null)
 
@@ -62,17 +64,25 @@ function Grid({
       console.log(boardId)
       if (boardId === 1) {
         if (activeShip !== null) {
-          placeShip(activeShip, "h", x, y)
+          placeShip(activeShip, shipAlignment, x, y)
           setActiveShip(null)
           setCorrectShipPlaced(activeShip)
-        } else {
-          takeHit(x, y, boardId)
         }
       } else {
         takeHit(x, y, boardId)
+        takeRandomHit()
       }
     },
-    [takeHit, placeShip, activeShip, setActiveShip, setShipsPlaced, boardId]
+    [
+      takeHit,
+      placeShip,
+      activeShip,
+      setActiveShip,
+      setShipsPlaced,
+      boardId,
+      takeRandomHit,
+      shipAlignment,
+    ]
   )
 
   useEffect(() => {

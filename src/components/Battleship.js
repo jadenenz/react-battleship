@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react"
 import Selection from "./Selection"
 import Grid from "./Grid"
+import Winner from "./Winner"
 
 function Battleship() {
   //Initialize the boards for the player and the computer
@@ -26,6 +27,7 @@ function Battleship() {
     computer: [],
   })
   const [activeShip, setActiveShip] = useState(null)
+  const [shipAlignment, setShipAlignment] = useState("h")
 
   //states for which ships have been placed on the board
   const [shipsPlaced, setShipsPlaced] = useState({
@@ -35,6 +37,11 @@ function Battleship() {
     submarine: false,
     destroyer: false,
   })
+
+  //state for displaying game winner information
+  //true for player win, false for computer win, null for
+  //no winner yet
+  const [playerWon, setPlayerWon] = useState(null)
 
   //Initialize the boards for the player and the computer
   //boardNum === 1 for playerBoard, 2 for ComputerBoard
@@ -72,12 +79,12 @@ function Battleship() {
 
   //helper function that cheks for valid positioning of ships
   const checkPlacement = (ship, alignment, x, y, board) => {
-    const verticalMax = ship.length + y
+    const verticalMin = y - ship.length
     const horizontalMax = ship.length + x
     for (let i = 0; i < ship.length; i++) {
       if (alignment === "v") {
-        if (verticalMax <= 10 && x <= 10) {
-          if (board[x][y + i] !== null) {
+        if (verticalMin <= 10 && x <= 10 && y <= 10) {
+          if (board[x][y - i] !== null) {
             return false
           }
         } else {
@@ -122,7 +129,7 @@ function Battleship() {
       const boardCopy = [...playerBoard]
       for (let i = 0; i < ship.length; i++) {
         if (alignment === "v") {
-          boardCopy[x][y + i] = ship
+          boardCopy[x][y - i] = ship
         } else if (alignment === "h") {
           boardCopy[x + i][y] = ship
         }
@@ -138,7 +145,7 @@ function Battleship() {
       const boardCopy = [...computerBoard]
       for (let i = 0; i < ship.length; i++) {
         if (alignment === "v") {
-          boardCopy[x][y + i] = ship
+          boardCopy[x][y - i] = ship
         } else if (alignment === "h") {
           boardCopy[x + i][y] = ship
         }
@@ -233,7 +240,7 @@ function Battleship() {
         if (targetSpot.hitsTaken === targetSpot.length) {
           targetSpot.isSunk = true
           if (CheckIfAllSunk(boardCopy)) {
-            console.log("you loseded")
+            setPlayerWon(false)
           }
         }
       }
@@ -247,7 +254,7 @@ function Battleship() {
         if (targetSpot.hitsTaken === targetSpot.length) {
           targetSpot.isSunk = true
           if (CheckIfAllSunk(boardCopy)) {
-            console.log("you loseded")
+            setPlayerWon(true)
           }
         }
       }
@@ -255,29 +262,23 @@ function Battleship() {
     }
   }
 
-  const handleClick = () => {
+  const setupComputerShips = () => {
+    const carrier = shipFactory(5)
+    const battleship = shipFactory(4)
+    const cruiser = shipFactory(3)
     const submarine = shipFactory(3)
-    // console.log(submarine)
-    placeShip(submarine, "h", 0, 0)
-  }
+    const destroyer = shipFactory(2)
+    cruiser.isCruiser = true
 
-  const handleClick2 = () => {
-    const destroyer = shipFactory(5)
-    // console.log(destroyer)
-    placeShip(destroyer, "v", 4, 1)
-  }
-
-  const handleTestFire = () => {
-    takeRandomHit()
-  }
-
-  const handleRandomShipPlace = () => {
-    const submarine = shipFactory(3)
+    placeComputerShipRandomly(carrier)
+    placeComputerShipRandomly(battleship)
+    placeComputerShipRandomly(cruiser)
     placeComputerShipRandomly(submarine)
+    placeComputerShipRandomly(destroyer)
   }
 
-  const handleBoardCheck = () => {
-    console.log(CheckIfAllSunk(playerBoard))
+  const handleStartGame = () => {
+    setupComputerShips()
   }
 
   useEffect(() => {
@@ -285,42 +286,56 @@ function Battleship() {
     initializeBoard(2)
   }, [])
 
-  useEffect(() => {
-    // console.log("effect ran -- playerBoard updated.")
-  }, [playerBoard])
+  const handleAlignmentChange = () => {
+    shipAlignment === "h" ? setShipAlignment("v") : setShipAlignment("h")
+  }
 
-  // console.log("playerBoard: ", playerBoard)
   return (
-    <div className="battleship">
-      <p>battleship</p>
-      <Selection setActiveShip={setActiveShip} shipsPlaced={shipsPlaced} />
-      <button onClick={handleClick}>test placement</button>
-      <button onClick={handleClick2}>other ship</button>
-      <button onClick={handleTestFire}>test fire1</button>
-      <button onClick={handleRandomShipPlace}>test random ship</button>
-      <button onClick={handleBoardCheck}>test check</button>
-      {/* <button onClick={handleTestFire2}></button> */}
+    <div className="Battleship">
+      <div className="Battleship--title">
+        <p>Battleship</p>
+      </div>
 
-      <div className="boards-container">
-        <Grid
-          board={playerBoard}
-          attacksReceived={attacksReceived.player}
-          isArrayinArray={isArrayinArray}
-          takeHit={takeHit}
-          activeShip={activeShip}
-          placeShip={placeShip}
-          setActiveShip={setActiveShip}
-          setShipsPlaced={setShipsPlaced}
-          boardId={1}
-        />
+      <div className="Battleship-buttons">
+        <button onClick={handleAlignmentChange}>
+          Change Alignment: {shipAlignment === "h" ? "Horizontal" : "Vertical"}
+        </button>
+        <button onClick={handleStartGame}>Start Game</button>
+      </div>
 
-        <Grid
-          board={computerBoard}
-          attacksReceived={attacksReceived.computer}
-          isArrayinArray={isArrayinArray}
-          takeHit={takeHit}
-          boardId={2}
-        />
+      <div className="gamespace--container">
+        <Selection setActiveShip={setActiveShip} shipsPlaced={shipsPlaced} />
+
+        <div className="boards-container">
+          <div>
+            <h2>Your Board</h2>
+            <Grid
+              board={playerBoard}
+              attacksReceived={attacksReceived.player}
+              isArrayinArray={isArrayinArray}
+              takeHit={takeHit}
+              activeShip={activeShip}
+              placeShip={placeShip}
+              setActiveShip={setActiveShip}
+              setShipsPlaced={setShipsPlaced}
+              shipAlignment={shipAlignment}
+              boardId={1}
+            />
+          </div>
+
+          <div>
+            <h2>Computer Board</h2>
+            <Grid
+              board={computerBoard}
+              attacksReceived={attacksReceived.computer}
+              isArrayinArray={isArrayinArray}
+              takeHit={takeHit}
+              boardId={2}
+              takeRandomHit={takeRandomHit}
+            />
+          </div>
+        </div>
+        {playerWon !== null && <Winner playerWon={playerWon} />}
       </div>
     </div>
   )
@@ -328,14 +343,13 @@ function Battleship() {
 
 //    (DONE)track if all ships on the board have been sunk
 //    (DONE)make the div on board interactible by clicking (data attributes?)
-// set up the ui for clicking ships and then clicking the board to add them
-// make 2 different boards for the player and pc with different display rules
-// add a function that makes the computer do a random attack that is hasn't done yet
-// set up logic for alternating turns
-// set up logic for winning the game
-
-//player turn could potentially be a boolean that flips every time a move is made
-
-//lower components are visual display components
+//    (DONE)set up the ui for clicking ships and then clicking the board to add them
+//    (DONE)make 2 different boards for the player and pc with different display rules
+//    (DONE)add a function that makes the computer do a random attack that is hasn't done yet
+//    (DONE) set up logic for alternating turns
+//    (DONE)set up logic for winning the game
+//make it impossible to attack the board before the game has been started
+//make start game unavailable until all player ships have been placed down
+//make start game button go away once the game has been started
 
 export default Battleship

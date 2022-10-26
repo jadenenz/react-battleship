@@ -29,19 +29,29 @@ function Selection({ setActiveShip, shipsPlaced }) {
       <div className="selection--title">Ships</div>
       <div className="selection--button-container">
         {!shipsPlaced.carrier && (
-          <button onClick={() => handleClick(carrier)}>Carrier</button>
+          <button onClick={() => handleClick(carrier)}>
+            Carrier - Length: 5
+          </button>
         )}
         {!shipsPlaced.battleship && (
-          <button onClick={() => handleClick(battleship)}>Battleship</button>
+          <button onClick={() => handleClick(battleship)}>
+            Battleship - Length: 4
+          </button>
         )}
         {!shipsPlaced.cruiser && (
-          <button onClick={() => handleClick(cruiser)}>Cruiser</button>
+          <button onClick={() => handleClick(cruiser)}>
+            Cruiser - Length: 3
+          </button>
         )}
         {!shipsPlaced.submarine && (
-          <button onClick={() => handleClick(submarine)}>Submarine</button>
+          <button onClick={() => handleClick(submarine)}>
+            Submarine - Length: 3
+          </button>
         )}
         {!shipsPlaced.destroyer && (
-          <button onClick={() => handleClick(destroyer)}>Destroyer</button>
+          <button onClick={() => handleClick(destroyer)}>
+            Destroyer - Length: 2
+          </button>
         )}
       </div>
     </div>
