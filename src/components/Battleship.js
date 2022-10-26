@@ -71,21 +71,21 @@ function Battleship() {
   }
 
   //helper function that cheks for valid positioning of ships
-  const checkPlacement = (ship, alignment, x, y) => {
+  const checkPlacement = (ship, alignment, x, y, board) => {
     const verticalMax = ship.length + y
     const horizontalMax = ship.length + x
     for (let i = 0; i < ship.length; i++) {
       if (alignment === "v") {
-        if (verticalMax <= 9 && x <= 9) {
-          if (playerBoard[x][y + i] !== null) {
+        if (verticalMax <= 10 && x <= 10) {
+          if (board[x][y + i] !== null) {
             return false
           }
         } else {
           return false
         }
       } else if (alignment === "h") {
-        if (horizontalMax <= 9 && y <= 9) {
-          if (playerBoard[x + i][y] !== null) {
+        if (horizontalMax <= 10 && y <= 10) {
+          if (board[x + i][y] !== null) {
             return false
           }
         } else {
@@ -118,7 +118,7 @@ function Battleship() {
   }
 
   const placeShip = (ship, alignment, x, y) => {
-    if (checkPlacement(ship, alignment, x, y)) {
+    if (checkPlacement(ship, alignment, x, y, playerBoard)) {
       const boardCopy = [...playerBoard]
       for (let i = 0; i < ship.length; i++) {
         if (alignment === "v") {
@@ -134,7 +134,7 @@ function Battleship() {
   }
 
   const placeComputerShip = (ship, alignment, x, y) => {
-    if (checkPlacement(ship, alignment, x, y)) {
+    if (checkPlacement(ship, alignment, x, y, computerBoard)) {
       const boardCopy = [...computerBoard]
       for (let i = 0; i < ship.length; i++) {
         if (alignment === "v") {
@@ -151,10 +151,22 @@ function Battleship() {
 
   const placeComputerShipRandomly = (ship) => {
     let random = getRandomXY()
-    while (!checkPlacement(ship, "h", random.x, random.y)) {
+    const max = 2
+    const rng = Math.floor(Math.random() * max)
+    let alignment
+    if (rng === 0) {
+      alignment = "v"
+    } else if (rng === 1) {
+      alignment = "h"
+    }
+    while (
+      !checkPlacement(ship, alignment, random.x, random.y, computerBoard)
+    ) {
+      // console.log("loop")
       random = getRandomXY()
     }
-    placeComputerShip(ship, "h", random.x, random.y)
+    console.log("x: ", random.x, "y: ", random.y)
+    placeComputerShip(ship, alignment, random.x, random.y)
   }
 
   //helper function that returns true if an array
@@ -211,19 +223,36 @@ function Battleship() {
         }
       })
     }
-    const boardCopy = [...playerBoard]
-    const targetSpot = boardCopy[x][y]
-    // console.log("targetSpot: ", targetSpot)
-    if (targetSpot !== null) {
-      targetSpot.hitsTaken += 1
-      if (targetSpot.hitsTaken === targetSpot.length) {
-        targetSpot.isSunk = true
-        if (CheckIfAllSunk(boardCopy)) {
-          console.log("you loseded")
+
+    if (board === 1) {
+      const boardCopy = [...playerBoard]
+      const targetSpot = boardCopy[x][y]
+      // console.log("targetSpot: ", targetSpot)
+      if (targetSpot !== null) {
+        targetSpot.hitsTaken += 1
+        if (targetSpot.hitsTaken === targetSpot.length) {
+          targetSpot.isSunk = true
+          if (CheckIfAllSunk(boardCopy)) {
+            console.log("you loseded")
+          }
         }
       }
+      setPlayerBoard(boardCopy)
+    } else if (board === 2) {
+      const boardCopy = [...computerBoard]
+      const targetSpot = boardCopy[x][y]
+      // console.log("targetSpot: ", targetSpot)
+      if (targetSpot !== null) {
+        targetSpot.hitsTaken += 1
+        if (targetSpot.hitsTaken === targetSpot.length) {
+          targetSpot.isSunk = true
+          if (CheckIfAllSunk(boardCopy)) {
+            console.log("you loseded")
+          }
+        }
+      }
+      setComputerBoard(boardCopy)
     }
-    setPlayerBoard(boardCopy)
   }
 
   const handleClick = () => {
