@@ -12,6 +12,9 @@ function Grid({
   boardId,
   takeRandomHit,
   shipAlignment,
+  gameStarted,
+  setPlacedShipsCount,
+  placedShipsCount,
 }) {
   const [gridDivs, setGridDivs] = useState(null)
 
@@ -61,16 +64,18 @@ function Grid({
       //if there is currently an active ship
       const x = parseInt(e.target.dataset.x)
       const y = parseInt(e.target.dataset.y)
-      console.log(boardId)
       if (boardId === 1) {
         if (activeShip !== null) {
           placeShip(activeShip, shipAlignment, x, y)
           setActiveShip(null)
           setCorrectShipPlaced(activeShip)
+          setPlacedShipsCount(placedShipsCount + 1)
         }
       } else {
-        takeHit(x, y, boardId)
-        takeRandomHit()
+        if (gameStarted) {
+          takeHit(x, y, boardId)
+          takeRandomHit()
+        }
       }
     },
     [
@@ -82,23 +87,20 @@ function Grid({
       boardId,
       takeRandomHit,
       shipAlignment,
+      gameStarted,
+      placedShipsCount,
+      setPlacedShipsCount,
     ]
   )
 
   useEffect(() => {
     function updateGrid() {
-      // console.log("updating board")
       const gridDivs = board.map((row, index) => {
         const x = index
         return row.map((boardSpace, index) => {
           const y = index
           let classes = "boardSpace"
           const target = [x, y]
-          //if target is found in attacksReceived array
-          // console.log(
-          //   "the target was found in attacksArray",
-          //   isArrayinArray(attacksReceived, target)
-          // )
           if (isArrayinArray(attacksReceived, target)) {
             classes += " attacked"
           }
@@ -127,7 +129,9 @@ function Grid({
     updateGrid()
   }, [board, attacksReceived, handleClick, isArrayinArray])
 
-  return <div className="Grid">{gridDivs}</div>
+  const classes = boardId === 1 ? "Grid" : "ComputerGrid"
+
+  return <div className={classes}>{gridDivs}</div>
 }
 
 export default Grid

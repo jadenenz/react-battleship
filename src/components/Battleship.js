@@ -7,7 +7,6 @@ function Battleship() {
   //Initialize the boards for the player and the computer
   //boardNum === 1 for playerBoard, 2 for ComputerBoard
   const initializeBoard = () => {
-    // console.log("initialize board called")
     let board = []
     const size = 10
 
@@ -43,32 +42,14 @@ function Battleship() {
   //no winner yet
   const [playerWon, setPlayerWon] = useState(null)
 
-  //Initialize the boards for the player and the computer
-  //boardNum === 1 for playerBoard, 2 for ComputerBoard
-  // const initializeBoard = () => {
-  //   console.log("initialize board called")
-  //   let board = []
-  //   const size = 10
+  //state that is false until the start game button
+  //is clicked. must be true to initiate attacks.
+  const [gameStarted, setGameStarted] = useState(false)
 
-  //   for (let x = 0; x < size; x++) {
-  //     let row = []
-  //     for (let y = 0; y < size; y++) {
-  //       row.push(null)
-  //     }
-  //     board.push(row)
-  //   }
-  //   return board
-  // if (boardNum === 1) {
-  //   setPlayerBoard(board)
-  // } else if (boardNum === 2) {
-  //   setComputerBoard(board)
-  // } else {
-  //   throw new Error("invalid board Num")
-  // }
-  // }
+  //state to keep track of how many ships have been placed
+  //by the player. used to enable the start game button
+  const [placedShipsCount, setPlacedShipsCount] = useState(0)
 
-  //given length returns ship object that stores length
-  // and # of hits taken
   const shipFactory = (length) => {
     return {
       length: length,
@@ -169,10 +150,8 @@ function Battleship() {
     while (
       !checkPlacement(ship, alignment, random.x, random.y, computerBoard)
     ) {
-      // console.log("loop")
       random = getRandomXY()
     }
-    console.log("x: ", random.x, "y: ", random.y)
     placeComputerShip(ship, alignment, random.x, random.y)
   }
 
@@ -234,7 +213,6 @@ function Battleship() {
     if (board === 1) {
       const boardCopy = [...playerBoard]
       const targetSpot = boardCopy[x][y]
-      // console.log("targetSpot: ", targetSpot)
       if (targetSpot !== null) {
         targetSpot.hitsTaken += 1
         if (targetSpot.hitsTaken === targetSpot.length) {
@@ -248,7 +226,6 @@ function Battleship() {
     } else if (board === 2) {
       const boardCopy = [...computerBoard]
       const targetSpot = boardCopy[x][y]
-      // console.log("targetSpot: ", targetSpot)
       if (targetSpot !== null) {
         targetSpot.hitsTaken += 1
         if (targetSpot.hitsTaken === targetSpot.length) {
@@ -278,6 +255,7 @@ function Battleship() {
   }
 
   const handleStartGame = () => {
+    setGameStarted(true)
     setupComputerShips()
   }
 
@@ -300,7 +278,13 @@ function Battleship() {
         <button onClick={handleAlignmentChange}>
           Change Alignment: {shipAlignment === "h" ? "Horizontal" : "Vertical"}
         </button>
-        <button onClick={handleStartGame}>Start Game</button>
+        {placedShipsCount < 5 ? (
+          <button onClick={handleStartGame} disabled>
+            Start Game
+          </button>
+        ) : (
+          !gameStarted && <button onClick={handleStartGame}>Start Game</button>
+        )}
       </div>
 
       <div className="gamespace--container">
@@ -320,6 +304,8 @@ function Battleship() {
               setShipsPlaced={setShipsPlaced}
               shipAlignment={shipAlignment}
               boardId={1}
+              setPlacedShipsCount={setPlacedShipsCount}
+              placedShipsCount={placedShipsCount}
             />
           </div>
 
@@ -332,6 +318,7 @@ function Battleship() {
               takeHit={takeHit}
               boardId={2}
               takeRandomHit={takeRandomHit}
+              gameStarted={gameStarted}
             />
           </div>
         </div>
@@ -346,10 +333,10 @@ function Battleship() {
 //    (DONE)set up the ui for clicking ships and then clicking the board to add them
 //    (DONE)make 2 different boards for the player and pc with different display rules
 //    (DONE)add a function that makes the computer do a random attack that is hasn't done yet
-//    (DONE) set up logic for alternating turns
+//    (DONE)set up logic for alternating turns
 //    (DONE)set up logic for winning the game
-//make it impossible to attack the board before the game has been started
-//make start game unavailable until all player ships have been placed down
-//make start game button go away once the game has been started
+//    (DONE)make it impossible to attack the board before the game has been started
+//    (DONE)make start game unavailable until all player ships have been placed down
+//    (DONE)make start game button go away once the game has been started
 
 export default Battleship

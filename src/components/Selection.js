@@ -21,7 +21,6 @@ function Selection({ setActiveShip, shipsPlaced }) {
   //this currently stores the object but i think it needs to be the name of the ship as a string
   const handleClick = (ship) => {
     setActiveShip(ship)
-    // console.log("shipsPlaced :", shipsPlaced)
   }
 
   return (
