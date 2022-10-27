@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/react-battleship/static/css/main.3991fd5b.css",
+    "main.js": "/react-battleship/static/js/main.8e0fb0d8.js",
+    "index.html": "/react-battleship/index.html",
+    "main.3991fd5b.css.map": "/react-battleship/static/css/main.3991fd5b.css.map",
+    "main.8e0fb0d8.js.map": "/react-battleship/static/js/main.8e0fb0d8.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.3991fd5b.css",
+    "static/js/main.8e0fb0d8.js"
+  ]
+}
